@@ -1,0 +1,23 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+
+# Variables de entorno (MUY IMPORTANTE)
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Archivos del sistema
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Uploads (si usás multer)
+uploads/
