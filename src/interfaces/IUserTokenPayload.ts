@@ -1,5 +1,6 @@
 interface IUserTokenPayload {
-  id: string
+  id: string,
+  role: "user" | "admin"
 }
 
 export default IUserTokenPayload

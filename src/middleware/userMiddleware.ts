@@ -2,7 +2,15 @@ import { Request, Response, NextFunction } from "express"
 import { verify } from "jsonwebtoken"
 import IUserTokenPayload from "../interfaces/IUserTokenPayload"
 
-const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IUserTokenPayload
+    }
+  }
+}
+
+const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const SECRET_KEY = process.env.JWT_SECRET!
   const header = req.headers.authorization
 
@@ -24,4 +32,4 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export default authMiddleware 
+export default userMiddleware 
