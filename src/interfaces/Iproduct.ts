@@ -4,8 +4,7 @@ interface Iproduct {
   stock: number,
   category: string,
   price: number,
-  image?: string,
-  user: string
+  image?: string
 }
 
 export default Iproduct

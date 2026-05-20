@@ -7,8 +7,7 @@ const ProductSchema = new Schema<Iproduct> ({
     stock: { type: Number, default: 0, min: 0 },
     category: { type: String, default: "No tiene categoria" },
     price: { type: Number, default: 0, min: 0 },
-    image: { type: String },
-    user: { type: String, required: true }
+    image: { type: String }
 }, {
   versionKey: false
 })

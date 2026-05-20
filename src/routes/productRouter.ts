@@ -3,8 +3,8 @@
 // GET http://localhost:3000/product
 
 import { Router } from "express"
-import BookController from "../controllers/productController"
-import authMiddleware from "../middleware/userMiddleware"
+import productController from "../controllers/productController"
+import userMiddleware from "../middleware/userMiddleware"
 import upload from "../middleware/uploadMiddleware"
 
 const productRouter = Router()
@@ -12,10 +12,11 @@ const productRouter = Router()
 // TODAS LAS PETICIONES QUE LLEGAN AL PRODUCTROUTER EMPIEZAN CON
 // POST http://localhost:3000/products/
 
-productRouter.get("/",BookController.getAllProducts)
-productRouter.get("/:id",BookController.getProduct)
-productRouter.post("/", authMiddleware, upload.single("image"), BookController.addProduct)
-productRouter.patch("/:id", authMiddleware, BookController.updateProduct)
-productRouter.delete("/:id", authMiddleware, BookController.deleteProduct)
+productRouter.get("/",productController.getAllProducts)
+productRouter.get("/:id",productController.getProduct)
+// Rutas solo para admin: productController, modificar y eliminar productos
+productRouter.post("/", userMiddleware, upload.single("image"), productController.addProduct)
+productRouter.patch("/:id", userMiddleware, productController.updateProduct)
+productRouter.delete("/:id", userMiddleware, productController.deleteProduct)
 
 export default productRouter

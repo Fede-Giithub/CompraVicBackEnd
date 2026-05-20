@@ -6,7 +6,7 @@ import { createProductSchema, updateProductSchema } from "../validators/productV
 class productController {
   static getAllProducts = async (req: Request, res: Response): Promise<void | Response> => {
     try {
-      const { name, stock, category, minPrice, maxPrice,user } = req.query
+      const { name, stock, category, minPrice, maxPrice} = req.query
       console.log(req.query)
 
       const filter: any = {}
@@ -21,7 +21,6 @@ class productController {
         // minPrice -> si tengo un precio mínimo quiero un objeto con un precio mas grande.
         if (maxPrice) filter.price.$lte = maxPrice
       }
-       if (user) filter.user = new RegExp(String(user), "i")
 
       const products = await Product.find(filter)
       res.json({ success: true, data: products })
@@ -54,11 +53,18 @@ class productController {
 
   static addProduct = async (req: Request, res: Response): Promise<void | Response> => {
     try {
+      const userRole = req.user?.role
+
+      // Solo el admin puede crear productos
+      if (userRole !== "admin") {
+        return res.status(403).json({ success: false, error: "Solo el administrador puede crear productos" })
+      }
+
       const { body, file } = req
 
-      const { name, description, price, category, stock,user } = body
+      const { name, description, price, category, stock} = body
 
-      if (!name || !description || !price || !category || !stock || !user) {
+      if (!name || !description || !price || !category || !stock) {
         return res.status(400).json({ message: "Todos los campos son requeridos" })
       }
 
@@ -68,8 +74,7 @@ class productController {
         category,
         stock: +stock,
         price: +price,
-        image: file?.path,
-        user
+        image: file?.path
       }
 
       const validator = createProductSchema.safeParse(dataToValidate)
@@ -105,9 +110,9 @@ class productController {
         return res.status(404).json({ success: false, error: "Producto no encontrado" })
       }
 
-      // Verificar permisos: admin puede modificar cualquier producto, usuario solo el suyo
-      if (userRole !== "admin" && (product as any).user.toString() !== userId) {
-        return res.status(403).json({ success: false, error: "No tienes permiso para modificar este producto" })
+      // Verificar permisos: solo el admin puede modificar productos
+      if (userRole !== "admin") {
+        return res.status(403).json({ success: false, error: "Solo el administrador puede modificar productos" })
       }
 
       const validator = updateProductSchema.safeParse(body)
@@ -145,9 +150,9 @@ class productController {
         return res.status(404).json({ success: false, error: "Producto no encontrado" })
       }
 
-      // Verificar permisos: admin puede eliminar cualquier producto, usuario solo el suyo
-      if (userRole !== "admin" && (product as any).user.toString() !== userId) {
-        return res.status(403).json({ success: false, error: "No tienes permiso para eliminar este producto" })
+      // Verificar permisos: solo el admin puede eliminar productos
+      if (userRole !== "admin") {
+        return res.status(403).json({ success: false, error: "Solo el administrador puede eliminar productos" })
       }
 
       const deletedProduct = await Product.findByIdAndDelete(productId)
