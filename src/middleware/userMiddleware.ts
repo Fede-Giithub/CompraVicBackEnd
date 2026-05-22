@@ -11,9 +11,11 @@ declare global {
 }
 
 const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
+
   const SECRET_KEY = process.env.JWT_SECRET!
   const header = req.headers.authorization
 
+  
   if (!header) {
     return res.status(401).json({ succes: false, error: "El token es requerido" })
   }

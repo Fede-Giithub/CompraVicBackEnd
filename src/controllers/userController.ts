@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import { createUserSchema } from "../validators/userValidator"
 
-dotenv.config()
+dotenv.config({ path: "./src/.env" })
 
 const SECRET_KEY = process.env.JWT_SECRET!
 
