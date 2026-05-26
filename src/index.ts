@@ -12,6 +12,7 @@ import path from "node:path"
 import fs from "node:fs"
 import emailService from "./services/emailService"
 import productRouter from "./routes/productRouter"
+import { airouter } from "./routes/aiRouter"
 
 dotenv.config({ path: path.resolve(__dirname, ".env") })
 
@@ -29,6 +30,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(logger)
+app.use("/ai", airouter)
 
 const uploadsPath = path.join(__dirname, "../uploads")
 
