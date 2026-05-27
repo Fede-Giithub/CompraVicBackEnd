@@ -1,111 +1,51 @@
 import { Router } from "express"
-import { streamText } from "ai"
+import { generateText } from "ai"
 import rateLimit from "express-rate-limit"
-import ProductModel from "../model/ProductModel"
 import openrouter from "../config/configai"
+import Product from "../model/ProductModel" // 👈 ajustá el path
+
 export const airouter = Router()
 
 const limiter = rateLimit({
-  windowMs: 1000 * 60 * 5, // 5 minutos
+  windowMs: 1000 * 60 * 5,
   max: 5,
   message: {
     success: false,
     error: "Demasiadas solicitudes, intentá más tarde."
-  },
-  legacyHeaders: false,
-  standardHeaders: "draft-8"
+  }
 })
 
 airouter.use(limiter)
 
-airouter.get("/summary/:id", async (req, res) => {
-    airouter.post("/chat", async (req, res) => {
+airouter.post("/chat", async (req, res) => {
   try {
     const { message } = req.body
 
-    if (!message) {
-      return res.status(400).json({
-        success: false,
-        error: "Mensaje requerido"
-      })
-    }
+    // Traemos los productos de la DB
+    const productos = await Product.find().select("name description price stock category").lean()
 
-    const result = await streamText({
-      model: openrouter("meituan/longcat-flash-thinking-2601"),
+    const { text } = await generateText({
+      model: openrouter("nvidia/nemotron-3-super-120b-a12b:free"),
+      system: `Sos el asistente virtual de CompraVic, una tienda online.
+Respondé siempre en español y de forma amable y concisa.
+Solo respondé preguntas relacionadas a la tienda y sus productos.
+Si te preguntan algo que no tiene que ver con la tienda, redirigí la conversación.
 
-      prompt: `
-Sos un asistente virtual de un ecommerce.
-
-Respondé de forma útil, breve y amigable.
-
-Mensaje del usuario:
-${message}
-`
+Estos son los productos disponibles actualmente:
+${JSON.stringify(productos, null, 2)}`,
+      prompt: message
     })
-
-    let fullResponse = ""
-
-    for await (const chunk of result.textStream) {
-      fullResponse += chunk
-    }
 
     return res.json({
       success: true,
-      reply: fullResponse
+      reply: text
     })
 
   } catch (error) {
     console.error(error)
-
     return res.status(500).json({
       success: false,
       error: "Error con IA"
     })
-  }
-})
-  try {
-    const { id } = req.params
-
-    const product = await ProductModel.findById(id)
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        error: "Producto no encontrado"
-      })
-    }
-
-    const prompt = `
-Genera un resumen corto y atractivo del siguiente producto:
-
-Título: ${product.name}
-
-Descripción:
-${product.description}
-`
-
-    res.setHeader(
-      "Content-Type",
-      "text/plain; charset=UTF-8"
-    )
-
-    const result = await streamText({
-      model: openrouter("meituan/longcat-flash-thinking-2601"),
-      prompt
-    })
-
-    return result.pipeTextStreamToResponse(res)
-
-  } catch (error) {
-    console.error(error)
-
-    if (!res.headersSent) {
-      return res.status(500).json({
-        success: false,
-        error: "Error generando resumen"
-      })
-    }
-
-    return res.end()
   }
 })

@@ -1,7 +1,8 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider"
+import { createOpenAI } from "@ai-sdk/openai"
 
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY
+const openrouter = createOpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY!,
+  baseURL: "https://openrouter.ai/api/v1"
 })
 
 export default openrouter

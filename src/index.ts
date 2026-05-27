@@ -1,21 +1,26 @@
 // LEVANTAR NUESTRO SERIVICIO Y CONFIGURACIONES GLOBALES
+import dotenv from "dotenv"
 import express, { Request, Response } from "express"
 import cors from "cors"
+
+
 import connectDB from "./config/mongodb"
 import bookRouter from "./routes/productRouter"
 import authRouter from "./routes/userRouter"
 import morgan from "morgan"
 import IUserTokenPayload from "./interfaces/IUserTokenPayload"
-import dotenv from "dotenv"
+
 import logger from "./config/logger"
 import path from "node:path"
 import fs from "node:fs"
 import emailService from "./services/emailService"
 import productRouter from "./routes/productRouter"
-import { airouter } from "./routes/aiRouter"
+
 
 dotenv.config({ path: path.resolve(__dirname, ".env") })
+console.log("API KEY:", process.env.OPENROUTER_API_KEY)
 
+import { airouter } from "./routes/aiRouter"
 declare global {
   namespace Express {
     interface Request {
